@@ -26,11 +26,10 @@ jobs:
     # https://github.com/radiantearth/stac-browser/blob/main/docs/options.md#historymode
     - name: Build Website
       run: |
-        npm run build -- \
+        npm run build -- --SB_historyMode=hash
         # --SB_catalogUrl="${{ env.SB_catalogUrl }}" \
         # --SB_pathPrefix="${{ env.pathPrefix }}" \
-        --SB_historyMode=hash
-
+        
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v2
       with:
