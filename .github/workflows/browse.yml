@@ -1,0 +1,55 @@
+# Deploy a STAC Browser website to github pages
+name: STAC Browser
+
+on: workflow_dispatch
+
+env:
+  # SB_catalogUrl: "https://raw.githubusercontent.com/${{ github.repository }}/main/catalog.json"
+  # TILE_SOURCE_TEMPLATE: "https://api.cogeo.xyz/cog/tiles/{z}/{x}/{y}?url={ASSET_HREF}&expression=sqrt(b1)&rescale=0,1"
+  # SB_pathPrefix: "/${{ github.event.repository.name }}/"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout STAC Browser Source
+      uses: actions/checkout@v4
+      with:
+        repository: radiantearth/stac-browser
+        ref: v3.1.0
+
+    - name: Install STAC Browser
+      run: |
+        npm install .
+
+    - name: Build Website
+      run: |
+        npm run build -- \
+        --SB_catalogUrl="${{ env.SB_catalogUrl }}" \
+        --SB_pathPrefix="${{ env.pathPrefix }}" \
+        --SB_historyMode=hash
+
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v2
+      with:
+        # Upload just 'dist/' folder
+        path: 'dist'
+        
+  # https://github.com/actions/deploy-pages
+  deploy:
+    needs: build
+
+    permissions:
+      pages: write
+      id-token: write 
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v3 
